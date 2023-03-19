@@ -1,0 +1,219 @@
+<html lang="en"><head>
+    <title>FNF but AI play it</title>
+    <style>
+        * {
+            margin: 0;
+        }
+
+        .i {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            margin: 15px 5px;
+            background-color: black;
+        }
+
+        .n {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            margin: 255px 5px;
+            background-color: green;
+        }
+
+        #l {
+            margin: 15px 5px;
+        }
+
+        #larro {
+            margin: 255px 5px;
+        }
+
+        #u {
+            margin: 15px 40px;
+        }
+
+        #uarro {
+            margin: 255px 40px;
+        }
+
+        #d {
+            margin: 15px 75px;
+        }
+
+        #darro {
+            margin: 255px 75px;
+        }
+
+        #r {
+            margin: 15px 110px;
+        }
+
+        #rarro {
+            margin: 255px 110px;
+        }
+
+        #debug {
+            margin: 15px 300px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="i" id="l"></div>
+    <div class="n" id="larro"></div>
+    <div class="i" id="u"></div>
+    <div class="n" id="uarro"></div>
+    <div class="i" id="d"></div>
+    <div class="n" id="darro"></div>
+    <div class="i" id="r"></div>
+    <div class="n" id="rarro"></div>
+
+    <div id="debug">
+        <p id="time">1674932093677</p>
+        <p id="halt">Pause: ye</p>
+        <p id="ae">AI: false</p>
+        <input type="range" min="1" max="100" value="1" class="slider" id="myRange">
+        <p id="e">1</p>
+        <p id="pos">Pos: 0</p>
+        <p id="score">Score: 0</p>
+        <textarea id="data"></textarea>
+        <button onclick="save()">Save</button>
+    </div>
+    <script>
+        var AI = false
+
+        var date = new Date()
+        document.getElementById("time").innerText = date.getTime().toString()
+
+        var slider = document.getElementById("myRange");
+        var output = document.getElementById("e");
+        output.innerHTML = slider.value; // Display the default slider value
+
+        // Update the current slider value (each time you drag the slider handle)
+        slider.oninput = function () {
+            output.innerHTML = "Speed: " + this.value;
+        }
+
+        var arr1 = document.getElementById("larro");
+        var arr2 = document.getElementById("uarro");
+        var arr3 = document.getElementById("darro");
+        var arr4 = document.getElementById("rarro");
+
+        var current_po1 = 255
+        var current_po2 = 255
+        var current_po3 = 255
+        var current_po4 = 255
+        var score = 0
+
+        function check(current_po, p) {
+            if (current_po < 45 && current_po > 0) {
+                if (p == true) {
+                    score += 10
+                    var random = Math.round(Math.random() * 10);
+                    if (random < 1) {
+                        current_po = 255 / 1
+                    } else {
+                        current_po = 255 / random
+                    }
+                }
+                document.getElementById("score").innerText = "Score: " + score.toString()
+                return [1, 0]
+            } else {
+                if (p == true) {
+                    score -= 1
+                }
+                document.getElementById("score").innerText = "Score: " + score.toString()
+                return [0, 1]
+            }
+        }
+
+        addEventListener("keypress", (event) => {
+            if (event.code == "KeyF") {
+                if (document.getElementById("halt").innerText == "Pause: no") {
+                    document.getElementById("halt").innerText = "Pause: ye"
+                } else {
+                    document.getElementById("halt").innerText = "Pause: no"
+                }
+
+            }
+
+            if (event.code == "KeyG") {
+                if (AI == false) {
+                    AI = true
+                    document.getElementById("ae").innerText = "AI: true"
+                } else {
+                    AI = false
+                    document.getElementById("ae").innerText = "AI: false"
+                }
+            }
+
+            if (event.code == "KeyA") {
+                check(current_po1, true)
+            }
+            if (event.code == "KeyW") {
+                check(current_po2, true)
+            }
+            if (event.code == "KeyS") {
+                check(current_po3, true)
+            }
+            if (event.code == "KeyD") {
+                check(current_po4, true)
+            }
+        })
+
+        function first(current_po, tick, l_tick, dt, speed, arr, offset) {
+            var po;
+            document.getElementById("time").innerText = tick.toString()
+            if (document.getElementById("halt").innerText == "Pause: no") {
+                if (current_po <= 0) {
+                    var random = Math.round(Math.random() * 10);
+                    if (random < 1) {
+                        current_po = 255 / 1
+                    } else {
+                        current_po = 255 / random
+                    }
+                }
+                document.getElementById("pos").innerText = "Pos: " + current_po.toString()
+
+                if (current_po < (0.1 * parseInt(speed, 10) * dt)) {
+                    current_po = 0;
+                    po = 0;
+                    arr.style.margin = `${po.toString()}px ${offset}px`
+                    current_po = po
+                } else {
+                    po = current_po - (0.1 * parseInt(speed, 10) * dt)
+                    arr.style.margin = `${po.toString()}px ${offset}px`
+                    current_po = po
+                }
+            } else {
+                var date = new Date()
+                document.getElementById("time").innerText = date.getTime().toString()
+            }
+            return po;
+        }
+
+        setInterval(() => {
+            if (document.getElementById("halt").innerText == "Pause: ye") return;
+            var speed = document.getElementById("myRange").value;
+            var l_tick = parseInt(document.getElementById("time").innerText, 10)
+            var date2 = new Date()
+            var tick = date2.getTime()
+
+            var dt = tick - l_tick
+            var tmp1 = first(current_po1, tick, l_tick, dt, speed, arr1, "5");
+            var tmp2 = first(current_po2, tick, l_tick, dt, speed, arr2, "40");
+            var tmp3 = first(current_po3, tick, l_tick, dt, speed, arr3, "75");
+            var tmp4 = first(current_po4, tick, l_tick, dt, speed, arr4, "110");
+            current_po1 = tmp1
+            current_po2 = tmp2
+            current_po3 = tmp3
+            current_po4 = tmp4
+        }, 1)
+    </script>
+    <script type="text/javascript" src="./lib/matrix.js"></script>
+    <script type="text/javascript" src="./lib/snn.js"></script>
+    <script type="text/javascript" src="./script.js" defer=""></script>
+
+
+</body></html>
